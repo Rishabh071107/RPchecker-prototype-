@@ -1,0 +1,87 @@
+/***********************
+ * CONFIG
+ ***********************/
+const SHEET_ID = "1t5uHtrRMSXQkxrFRUudDpwuN23A6K61PhdrjDNZFaV8";
+const START_ROW = 17; // data starts from row 17
+const COL_START = 2;  // column B
+const COL_COUNT = 9;  // B → J
+
+/***********************
+ * API ENTRY POINT
+ ***********************/
+function doGet(e) {
+  const q = (e.parameter.q || "").toString().trim().toLowerCase();
+
+  if (!q) {
+    return json({
+      success: false,
+      message: "Missing search parameter"
+    });
+  }
+
+  const result = findStudent(q);
+
+  if (!result) {
+    return json({
+      success: true,
+      found: false
+    });
+  }
+
+  return json({
+    success: true,
+    found: true,
+    data: result
+  });
+}
+
+/***********************
+ * CORE SEARCH LOGIC
+ ***********************/
+function findStudent(query) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheets = ss.getSheets();
+
+  for (let s = 0; s < sheets.length; s++) {
+    const sheet = sheets[s];
+    const lastRow = sheet.getLastRow();
+
+    if (lastRow < START_ROW) continue;
+
+    // Read ONLY required columns
+    const rows = sheet
+      .getRange(START_ROW, COL_START, lastRow - START_ROW + 1, COL_COUNT)
+      .getValues();
+
+    for (let i = 0; i < rows.length; i++) {
+      const roll = String(rows[i][1]).toLowerCase().trim();
+      const name = String(rows[i][2]).toLowerCase().trim();
+
+      if (roll === query || name === query) {
+        return {
+          departmentSheet: sheet.getName(),
+          year: rows[i][0],
+          rollNo: rows[i][1],
+          name: rows[i][2],
+          course: rows[i][3],
+          department: rows[i][4],
+          mentor: rows[i][5],
+          total: rows[i][6],
+          redeemed: rows[i][7],
+          balance: rows[i][8]
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+/***********************
+ * JSON HELPER
+ ***********************/
+function json(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
