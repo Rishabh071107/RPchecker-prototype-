@@ -12,6 +12,12 @@
           "value": "public, max-age=3600, s-maxage=3600"
         }
       ]
+    ,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/RPlogger.html"
     }
+  }
   ]
 }
