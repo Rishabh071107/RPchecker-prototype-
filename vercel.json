@@ -1,0 +1,17 @@
+{
+  "buildCommand": "echo \"No build required\"",
+  "outputDirectory": ".",
+  "installCommand": "npm install --omit=dev",
+  "public": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
+        }
+      ]
+    }
+  ]
+}
